@@ -16,6 +16,7 @@ class HomMul(ParallelEnv):
         self.cost_wait = -1
         self.gain_play = 1
         self.cost_play = -2
+        self.gain_dead = 0
 
         self.action_dict = {0: "wait", 1: "play", 2: "none"}
         self.num_actions = len(self.action_dict)
@@ -66,24 +67,42 @@ class HomMul(ParallelEnv):
             self.player1_prob_payoff + self.player2_prob_payoff
         )
 
-        if self.player1_action and self.player2_action:
-            if combined_possible_outcome:
-                player1_payoff, player2_payoff = self.gain_play, self.gain_play
+        if self.player1_life_points != 0 and self.player2_life_points != 0:
+            if self.player1_action and self.player2_action:
+                if combined_possible_outcome:
+                    player1_payoff, player2_payoff = self.gain_play, self.gain_play
+                else:
+                    player1_payoff, player2_payoff = self.cost_play, self.cost_play
+            elif self.player1_action and not self.player2_action:
+                if player1_possible_outcome:
+                    player1_payoff, player2_payoff = self.gain_play, self.cost_wait
+                else:
+                    player1_payoff, player2_payoff = self.cost_play, self.cost_wait
+            elif not self.player1_action and self.player2_action:
+                if player2_possible_outcome:
+                    player1_payoff, player2_payoff = self.cost_wait, self.gain_play
+                else:
+                    player1_payoff, player2_payoff = self.cost_wait, self.cost_play
             else:
-                player1_payoff, player2_payoff = self.cost_play, self.cost_play
-        elif self.player1_action and not self.player2_action:
-            if player1_possible_outcome:
-                player1_payoff, player2_payoff = self.gain_play, self.cost_wait
+                player1_payoff, player2_payoff = self.cost_wait, self.cost_wait
+        elif self.player1_life_points != 0 and self.player2_life_points == 0:
+            if self.player1_action:
+                if player1_possible_outcome:
+                    player1_payoff, player2_payoff = self.gain_play, self.gain_dead
+                else:
+                    player1_payoff, player2_payoff = self.cost_play, self.gain_dead
             else:
-                player1_payoff, player2_payoff = self.cost_play, self.cost_wait
-        elif not self.player1_action and self.player2_action:
-            if player2_possible_outcome:
-                player1_payoff, player2_payoff = self.cost_wait, self.gain_play
+                player1_payoff, player2_payoff = self.cost_wait, self.gain_dead
+        elif self.player1_life_points == 0 and self.player2_life_points != 0:
+            if self.player2_action:
+                if player2_possible_outcome:
+                    player1_payoff, player2_payoff = self.gain_dead, self.gain_play
+                else:
+                    player1_payoff, player2_payoff = self.gain_dead, self.cost_play
             else:
-                player1_payoff, player2_payoff = self.cost_wait, self.cost_play
+                player1_payoff, player2_payoff = self.gain_dead, self.cost_wait
         else:
-            player1_payoff, player2_payoff = self.cost_wait, self.cost_wait
-
+            player1_payoff, player2_payoff = self.gain_dead, self.gain_dead
 
         return player1_payoff, player2_payoff
 
