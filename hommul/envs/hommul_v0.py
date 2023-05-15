@@ -24,6 +24,14 @@ class HomMul(ParallelEnv):
         self.possible_agents = ["player1", "player2"]
         self.agents = self.possible_agents[:]
 
+        self.observation_spaces = {
+            agent: Box(low=0, high=3, shape=(1, 7)) for agent in self.agents
+        }
+
+        self.action_spaces = {
+            agent: Discrete(self.num_actions) for agent in self.agents
+        }
+
     def _get_obs(self):
         return {
             "player1": {
