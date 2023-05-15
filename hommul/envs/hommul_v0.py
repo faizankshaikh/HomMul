@@ -60,6 +60,16 @@ class HomMul(ParallelEnv):
             },
         }
 
+    def _get_prob_payoffs(self):
+        self.weather_type = np.random.choice([0, 1])
+
+        if self.weather_type:
+            self.player1_prob_payoff = 0.2
+            self.player2_prob_payoff = 0.2
+        else:
+            self.player1_prob_payoff = 0.4
+            self.player2_prob_payoff = 0.4
+
     def _get_payoffs(self):
         player1_possible_outcome = np.random.uniform(0, 1) <= self.player1_prob_payoff
         player2_possible_outcome = np.random.uniform(0, 1) <= self.player2_prob_payoff
@@ -116,20 +126,19 @@ class HomMul(ParallelEnv):
         self.agents = self.possible_agents[:]
         self.days_left = np.random.randint(1, self.num_days)
 
-        self.player1_life_points = np.random.randint(1, self.num_life_points)
-        self.player2_life_points = np.random.randint(1, self.num_life_points)
+        life_point_perms = [[1, 1], [1, 2], [2, 2], [1, 3], [3, 3]]
+
+        if self.days_left != 1:
+            self.player1_life_points = np.random.randint(1, self.num_life_points)
+            self.player2_life_points = np.random.randint(1, self.num_life_points)
+        else:
+            rng = np.random.default_rng()
+            self.player1_life_points, self.player2_life_points = rng.choice(life_point_perms, 1, axis=0)[0]
 
         self.player1_action = 2
         self.player2_action = 2
 
-        self.weather_type = np.random.choice([0, 1])
-
-        if self.weather_type:
-            self.player1_prob_payoff = 0.2
-            self.player2_prob_payoff = 0.2
-        else:
-            self.player1_prob_payoff = 0.4
-            self.player2_prob_payoff = 0.4
+        self._get_prob_payoffs()
 
         if self.render_mode == "human":
             self.render_text(is_start=True)
@@ -157,6 +166,7 @@ class HomMul(ParallelEnv):
         infos = {a: {} for a in self.agents}
 
         self.days_left -= 1
+        self._get_prob_payoffs()
 
         if self.render_mode == "human":
             self.render_text()
