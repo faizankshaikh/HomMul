@@ -179,7 +179,7 @@ class HomMul(ParallelEnv):
         if self.render_mode == "human":
             self.render_text()
 
-        if self.days_left == 0:
+        if self.days_left == 0 or (self.player1_life_points == 0 and self.player2_life_points == 0):
             truncations = {a: True for a in self.agents}
             terminations = {a: False for a in self.agents}
             infos = {a: {} for a in self.agents}
