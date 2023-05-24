@@ -7,11 +7,12 @@ from gymnasium.spaces import Discrete, Box
 class HomMul(ParallelEnv):
     metadata = {"render_mode": ["human"]}
 
-    def __init__(self, render_mode=None):
+    def __init__(self, include_all_states=False, render_mode=None):
         self.render_mode = render_mode
 
         self.num_days = 3
         self.num_life_points = 4
+        self.include_all_states = include_all_states
 
         self.cost_wait = -1
         self.gain_play = 1
@@ -136,7 +137,7 @@ class HomMul(ParallelEnv):
 
         life_point_perms = [[1, 1], [1, 2], [2, 2], [1, 3], [3, 3]]
 
-        if self.days_left != 1:
+        if self.days_left != 1 and not self.include_all_states:
             self.player1_life_points = np.random.randint(1, self.num_life_points)
             self.player2_life_points = np.random.randint(1, self.num_life_points)
         else:
