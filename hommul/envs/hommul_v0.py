@@ -10,8 +10,8 @@ class HomMul(ParallelEnv):
     def __init__(self, include_all_states=False, render_mode=None):
         self.render_mode = render_mode
 
-        self.num_days = 3
-        self.num_life_points = 4
+        self.num_days = 9
+        self.num_life_points = 5
         self.include_all_states = include_all_states
 
         self.cost_wait = -1
@@ -26,7 +26,7 @@ class HomMul(ParallelEnv):
         self.agents = self.possible_agents[:]
 
         self.observation_spaces = {
-            agent: Box(low=0, high=3, shape=(1, 7)) for agent in self.agents
+            agent: Box(low=0, high=3, shape=(1, 5)) for agent in self.agents
         }
 
         self.action_spaces = {
@@ -43,9 +43,7 @@ class HomMul(ParallelEnv):
                             self.player1_life_points,
                             self.player2_life_points,
                             self.player1_prob_payoff,
-                            self.player2_prob_payoff,
-                            self.player1_action,
-                            self.player2_action,
+                            self.player2_prob_payoff
                         ]
                     ]
                 ),
@@ -59,9 +57,7 @@ class HomMul(ParallelEnv):
                             self.player1_life_points,
                             self.player2_life_points,
                             self.player1_prob_payoff,
-                            self.player2_prob_payoff,
-                            self.player1_action,
-                            self.player2_action,
+                            self.player2_prob_payoff
                         ]
                     ]
                 ),
@@ -137,12 +133,12 @@ class HomMul(ParallelEnv):
 
         life_point_perms = [[1, 1], [1, 2], [2, 2], [1, 3], [3, 3]]
 
-        if self.days_left != 1 and not self.include_all_states:
-            self.player1_life_points = np.random.randint(1, self.num_life_points)
-            self.player2_life_points = np.random.randint(1, self.num_life_points)
-        else:
+        if self.days_left == 1 and not self.include_all_states:
             rng = np.random.default_rng()
             self.player1_life_points, self.player2_life_points = rng.choice(life_point_perms, 1, axis=0)[0]
+        else:
+            self.player1_life_points = np.random.randint(self.num_life_points-1, self.num_life_points)
+            self.player2_life_points = np.random.randint(self.num_life_points-1, self.num_life_points)
 
         self.player1_action = 2
         self.player2_action = 2
